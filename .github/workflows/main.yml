@@ -21,12 +21,7 @@ jobs:
     - name: Add SSH keyscan
       run: |
         mkdir -p ~/.ssh
-        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-          HOST=${{ secrets.STAGING_HOST }}
-        elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
-          HOST=${{ secrets.STAGING_HOST }}
-        fi
-        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
     - name: Deployment from main
       if: github.ref == 'refs/heads/main'
