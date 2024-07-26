@@ -14,14 +14,17 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.0
-      with:
-        ssh-private-key: ${{ secrets.STAGING_PRIVATE_KEY }}
-
-    - name: Add SSH keyscan
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.STAGE_HOST }} >> ~/.ssh/known_hosts
+        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "${{ secrets.STAGING_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          HOST=${{ secrets.STAGE_HOST }}
+        elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+          echo "${{ secrets.SSH_STAGING_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          HOST=${{ secrets.STAGE_HOST }}
+        fi
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
 
     - name: Deployment from main
       if: github.ref == 'refs/heads/main'
